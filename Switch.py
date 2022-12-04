@@ -58,6 +58,7 @@ def ReadInTemporary():
     
 def ReturnBasicDate(x):
 	return datetime.combine(x, datetime.min.time())
+
 	
 def ReadInPermanent(x):
 	gotit = False
