@@ -60,14 +60,14 @@ def ReturnBasicDate(x):
 	return datetime.combine(x, datetime.min.time())
 
 	
-def ReadInPermanent(x):
+def ReadInPermanent(tod):
 	gotit = False
 	FileName = "/home/pi/shared/Permanent.csv"
 	df = pd.read_csv(FileName)
 	df['Time'] = pd.to_datetime(df['Time'])
 	df['Duration'] = pd.to_datetime(df['Duration']).dt.time
-	w = week_of_month(x) - 1
-	d = x.weekday() + 1
+	w = week_of_month(tod) - 1
+	d = tod.weekday() + 1
 	j = len(cf.WorkingDF)
 	for i in range(len(df)):
 		dow = df.iloc[i]['DoW']
@@ -75,7 +75,7 @@ def ReadInPermanent(x):
 		t1 = df.iloc[i]['Time']
 		t11 = df.iloc[i]['Duration']
 		if d == dow and wom[w] == 'Y':
-			t0 = ReturnBasicDate(x) + timedelta(hours = t1.hour, minutes = t1.minute)
+			t0 = ReturnBasicDate(tod) + timedelta(hours = t1.hour, minutes = t1.minute)
 			t2 = t0 + timedelta(hours = t11.hour, minutes = t11.minute)
 			cf.WorkingDF.loc[i+j] = [t0,t2]
 		
