@@ -65,7 +65,6 @@ def ReadInPermanent(x):
 	df = pd.read_csv(FileName)
 	df['Time'] = pd.to_datetime(df['Time'])
 	df['Duration'] = pd.to_datetime(df['Duration']).dt.time
-	df['Ignore'] = pd.to_datetime(df['Ignore'])
 	w = week_of_month(x) - 1
 	d = x.weekday() + 1
 	j = len(cf.WorkingDF)
@@ -75,7 +74,10 @@ def ReadInPermanent(x):
 		wom = df.iloc[i]['Weeks of Month']
 		t1 = df.iloc[i]['Time']
 		t11 = df.iloc[i]['Duration']
-		ignoredate = BasicDate(df.iloc[i]['Ignore'])
+		try:
+			ignoredate = BasicDate(pd.to_datetime(df.iloc[i]['Ignore']))
+		except:
+			ignoredate = BasicDate(datetime(2000,1,1,1,1))
 		if d == dow and wom[w] == 'Y' and thisdate != ignoredate:
 			t0 = thisdate + timedelta(hours = t1.hour, minutes = t1.minute)
 			t2 = t0 + timedelta(hours = t11.hour, minutes = t11.minute)
@@ -186,7 +188,9 @@ def Working():
 	while True:
 		ReadTemp()
 		ReadInStates()
-		if FS.CheckFlag() == True: TimeOnUntil = datetime(2000,1,1,1,1)
+		if FS.CheckFlag() == True: 
+			cf.TimeOnUntil = datetime(2000,1,1,1,1)
+#			print("Yes")
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2'])
 		ReadInParameters()
 		ReadInTemporary()
@@ -194,6 +198,7 @@ def Working():
 		ReadInPermanent(datetime.now() + timedelta(days = 1))
 		cf.WorkingDF.sort_values(by=['T0'], inplace=True)
 #		print(cf.WorkingDF)
+#		print(cf.TimeOnUntil)
 		EditTimeOnUntil()
 		if (datetime.now() < cf.TimeOnUntil and cf.TimeOnUntil > cf.OverrideOff) or \
 				datetime.now() < cf.OverrideOn:
