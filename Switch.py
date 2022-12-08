@@ -159,6 +159,7 @@ def ReadInParameters():
 	cf.HeatingDownTarget = float(df.loc[0]['Background Temperature'])
 	cf.Hysteresis = float(df.iloc[0]['Hysteresis'])
 	cf.ThermalDrag = float(df.iloc[0]['Thermal Lag'])
+	cf.PicoURL = df.loc[0,'PicoIP']
 #	print(cf.HeatingUpTarget,cf.HeatingDownTarget,cf.Hysteresis,cf.ThermalDrag)
 
 def ReadInStates():
@@ -182,6 +183,7 @@ def ReadInStates():
 	
 def Working():
 	os.chdir("/home/pi/shared")
+	ReadInParameters()
 	SetGPIO()
 	cf.Counter = 0
 	cf.Errors = 0
