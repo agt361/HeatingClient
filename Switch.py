@@ -179,7 +179,6 @@ def ReadInStates():
 		df = pd.read_csv(FileName)
 		cf.OverrideOn = datetime.strptime(df.iloc[0]['KeepOnTill'],'%Y/%m/%d %H:%M:%S')
 		cf.OverrideOff = datetime.strptime(df.iloc[0]['KeepOffTill'],'%Y/%m/%d %H:%M:%S')
-
 	
 def Working():
 	os.chdir("/home/pi/shared")
