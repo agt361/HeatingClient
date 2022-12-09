@@ -2,8 +2,8 @@ from datetime import date, datetime
 import pandas as pd
 
 Name = 'Chancel'
-#PicoURL = 'http://192.168.68.47'
-PicoURL = 'http://192.168.1.47'
+#PicoURL = 'http://1.1.1.1'
+PicoURL = 'http://1.1.1.1'
 PicoGPIO = 8
 PicoOff = True
 PicoOn = False
