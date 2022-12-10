@@ -45,7 +45,7 @@ def week_of_month(dt):
     return int(ceil(adjusted_dom/7.0))
     
 def ReadInTemporary():
-	FileName = "/home/pi/shared/Temporary.csv"
+	FileName = "Temporary.csv"
 	df = pd.read_csv(FileName)
 	df['DateTime'] = pd.to_datetime(df['DateTime'])
 	df['Duration'] = pd.to_datetime(df['Duration']).dt.time
@@ -61,7 +61,7 @@ def BasicDate(x):
 	
 def ReadInPermanent(x):
 	gotit = False
-	FileName = "/home/pi/shared/Permanent.csv"
+	FileName = "Permanent.csv"
 	df = pd.read_csv(FileName)
 	df['Time'] = pd.to_datetime(df['Time'])
 	df['Duration'] = pd.to_datetime(df['Duration']).dt.time
@@ -121,39 +121,25 @@ def ReadTemp():
 		cf.Errors += 1
 		if cf.Errors > 9:
 			cf.Errors = 0
-			SwitchPicoOffAndOn()
+#			SwitchPicoOffAndOn()
 	t = float((re.findall(':.*:|$', html)[0]).strip(":"))
 	if t > -20: cf.CurrentTemperature = t
 	x = datetime.now()
 	xsl = x.strftime("%y/%m/%d %H:%M:%S")
 	ho = cf.HeatingOn
 	cf.Counter += 1
-	with open("/home/pi/shared/CurrentTemperature.csv", 'w') as f:
+	with open("CurrentTemperature.csv", 'w') as f:
 		f.write(f"DateTime,Temperature,Heating On\n" )
 		f.write(f"{xsl},{t},{ho}\n" )
 	if (cf.Counter % 120) == 0:
-		with open("/home/pi/shared/TemperatureLog.csv", 'a') as f:
+		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t},{ho}\n" )
 	if (cf.Counter % 3600) == 0:
-		TruncateFile("/home/pi/shared/TemperatureLog.csv",13333)
+		TruncateFile("TemperatureLog.csv",13333)
 		cf.Counter = 0
 
-def SwitchPicoOffAndOn():
-	GPIO.output(cf.PicoGPIO, cf.PicoOff) 
-	sleep(5)
-	GPIO.output(cf.PicoGPIO, cf.PicoOn)
-	sleep(15)
-	
-def SetGPIO():
-	GPIO.setmode(GPIO.BOARD) 
-	GPIO.setwarnings(False)
-	GPIO.setup(cf.HeatingGPIO, GPIO.OUT) # GPIO Assign mode
-	GPIO.output(cf.HeatingGPIO, GPIO.LOW) 
-	GPIO.setup(cf.PicoGPIO, GPIO.OUT) # GPIO Assign mode
-	SwitchPicoOffAndOn()
-
 def ReadInParameters():
-	FileName = "/home/pi/shared/System.csv"
+	FileName = "System.csv"
 	df = pd.read_csv(FileName)
 	cf.HeatingUpTarget = float(df.iloc[0]['Target Temperature'])
 	cf.HeatingDownTarget = float(df.loc[0]['Background Temperature'])
@@ -163,7 +149,7 @@ def ReadInParameters():
 #	print(cf.HeatingUpTarget,cf.HeatingDownTarget,cf.Hysteresis,cf.ThermalDrag)
 
 def ReadInStates():
-	FileName = "/home/pi/shared/States.csv"
+	FileName = "States.csv"
 	f,t1,t2 = FS.CheckOFlag()
 	if f:
 		if t1 > datetime.now(): cf.OverrideOn = t1
@@ -180,10 +166,9 @@ def ReadInStates():
 		cf.OverrideOn = datetime.strptime(df.iloc[0]['KeepOnTill'],'%Y/%m/%d %H:%M:%S')
 		cf.OverrideOff = datetime.strptime(df.iloc[0]['KeepOffTill'],'%Y/%m/%d %H:%M:%S')
 	
-def Working():
-	os.chdir("/home/pi/shared")
+def Working(name):
+	os.chdir("/home/pi/shared/"+name)
 	ReadInParameters()
-	SetGPIO()
 	cf.Counter = 0
 	cf.Errors = 0
 	while True:
@@ -211,5 +196,5 @@ def Working():
 		Thermostat()
 		sleep(5)
 
-Working()
+Working("Chancel")
 

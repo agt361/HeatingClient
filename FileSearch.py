@@ -5,7 +5,7 @@ from datetime import datetime
 
 def CheckFlag():
     found = False
-    for root, dirs, files in os.walk("/home/pi/shared"):
+    for root, dirs, files in os.walk(os.getcwd()):
        for f in files:
            if f[0:4] == 'Flag': 
                os.remove(f)
@@ -16,7 +16,7 @@ def CheckOFlag():
     found = False
     t1 = None
     t2 = None
-    for root, dirs, files in os.walk("/home/pi/shared"):
+    for root, dirs, files in os.walk(os.getcwd()):
        for f in files:
            if f[0:5] == 'OFlag': 
                 df = pd.read_csv(f)
@@ -26,4 +26,4 @@ def CheckOFlag():
                 found = True
     return found, t1, t2
     
- 
+
