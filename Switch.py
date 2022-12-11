@@ -23,6 +23,7 @@ def GetHTML():
 	headers = {
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; PIWEBMON)',
         'Cache-Control': 'no-cache' }
+	print(cf.PicoURL)
 	try: response = requests.get(cf.PicoURL, headers=headers, timeout = 10)
 	except Exception as e: 
 		return -1, " Error"
@@ -146,6 +147,7 @@ def ReadInParameters():
 	cf.Hysteresis = float(df.iloc[0]['Hysteresis'])
 	cf.ThermalDrag = float(df.iloc[0]['Thermal Lag'])
 	cf.PicoURL = df.loc[0,'PicoIP']
+	print(cf.PicoURL)
 #	print(cf.HeatingUpTarget,cf.HeatingDownTarget,cf.Hysteresis,cf.ThermalDrag)
 
 def ReadInStates():
@@ -167,6 +169,7 @@ def ReadInStates():
 		cf.OverrideOff = datetime.strptime(df.iloc[0]['KeepOffTill'],'%Y/%m/%d %H:%M:%S')
 	
 def Working(name):
+	print("/home/pi/shared/"+name)
 	os.chdir("/home/pi/shared/"+name)
 	ReadInParameters()
 	cf.Counter = 0
@@ -196,5 +199,4 @@ def Working(name):
 		Thermostat()
 		sleep(5)
 
-Working("Chancel")
-
+Working(sys.arv[0])
