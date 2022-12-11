@@ -108,8 +108,8 @@ def Thermostat():
 	else:
 		cf.HeatingTargetDirection = 'Up'
 		cf.HeatingOn = True
-#		print(cf.HeatingOn)
-	GPIO.output(cf.HeatingGPIO, cf.HeatingOn) 
+		print(cf.HeatingOn)
+#	GPIO.output(cf.HeatingGPIO, cf.HeatingOn) 
 
 
 def ReadTemp():
