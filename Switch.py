@@ -19,17 +19,26 @@ import config as cf
 #import TemperatureClient as TC
 import FileSearch as FS
 
-def GetHTML():
+def GetHTML(url,hdr,val):
 	headers = {
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; PIWEBMON)',
-        'Cache-Control': 'no-cache' }
-	print(cf.PicoURL)
-	try: response = requests.get(cf.PicoURL, headers=headers, timeout = 10)
+        hdr:val,'Cache-Control': 'no-cache' }
+	try: response = requests.get(url, headers=headers, timeout = 10)
 	except Exception as e: 
 		return -1, " Error"
 	if (response.status_code < 200 or response.status_code > 299):
 		return -1, "Error"
 	return 1, response.text
+
+def SetHeating(nf):
+	if nf: ss = '1' 
+	else: ss = '0'
+	web_status, html = GetHTML(cf.PicoClientURL,'Test',ss)
+	if web_status == 1 and ss == html[:1]:
+			cf.Switch = "OK"
+	else:
+		cf.Switch = "Problem"
+
 
 def TruncateFile(LFile,NewL):
 	GhostFile = 'ghost.csv'
@@ -110,11 +119,11 @@ def Thermostat():
 		cf.HeatingTargetDirection = 'Up'
 		cf.HeatingOn = True
 		print(cf.HeatingOn)
-#	GPIO.output(cf.HeatingGPIO, cf.HeatingOn) 
+	SetHeating(cf.HeatingOn)
 
 
 def ReadTemp():
-	web_status, html = GetHTML()
+	web_status, html = GetHTML(cf.PicoURL,'x','x')
 	if web_status == 1:
 		cf.Errors = 0
 	else:
@@ -124,14 +133,19 @@ def ReadTemp():
 			cf.Errors = 0
 #			SwitchPicoOffAndOn()
 	t = float((re.findall(':.*:|$', html)[0]).strip(":"))
-	if t > -20: cf.CurrentTemperature = t
+	if t > -20: 
+		cf.CurrentTemperature = t
+		cf.Sensor = 'OK'
+	else:
+		cf.Sensor = "Problem"
 	x = datetime.now()
 	xsl = x.strftime("%y/%m/%d %H:%M:%S")
-	ho = cf.HeatingOn
+	if cf.HeatingOn: ho = 'Yes'
+	else: ho = 'No'
 	cf.Counter += 1
 	with open("CurrentTemperature.csv", 'w') as f:
-		f.write(f"DateTime,Temperature,Heating On\n" )
-		f.write(f"{xsl},{t},{ho}\n" )
+		f.write(f"DateTime,Temperature,Heating On,Switch,Sensor\n" )
+		f.write(f"{xsl},{t},{ho},{cf.Switch},{cf.Sensor}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t},{ho}\n" )
@@ -147,8 +161,7 @@ def ReadInParameters():
 	cf.Hysteresis = float(df.iloc[0]['Hysteresis'])
 	cf.ThermalDrag = float(df.iloc[0]['Thermal Lag'])
 	cf.PicoURL = df.loc[0,'PicoIP']
-	print(cf.PicoURL)
-#	print(cf.HeatingUpTarget,cf.HeatingDownTarget,cf.Hysteresis,cf.ThermalDrag)
+	cf.PicoClientURL = df.loc[0,'PicoClientIP']
 
 def ReadInStates():
 	FileName = "States.csv"
@@ -199,4 +212,4 @@ def Working(name):
 		Thermostat()
 		sleep(5)
 
-Working(sys.arv[0])
+Working(sys.argv[1])
