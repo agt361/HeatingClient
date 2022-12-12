@@ -35,7 +35,7 @@ def SetHeating(nf):
 	else: ss = '0'
 	web_status, html = GetHTML(cf.PicoClientURL,'Test',ss)
 	if web_status == 1 and ss == html[:1]:
-			cf.Switch = "OK"
+		cf.Switch = "OK"
 	else:
 		cf.Switch = "Problem"
 
@@ -142,10 +142,12 @@ def ReadTemp():
 	xsl = x.strftime("%y/%m/%d %H:%M:%S")
 	if cf.HeatingOn: ho = 'Yes'
 	else: ho = 'No'
+	if cf.HeatingUp: hu = 'Yes'
+	else: hu = 'No'
 	cf.Counter += 1
 	with open("CurrentTemperature.csv", 'w') as f:
-		f.write(f"DateTime,Temperature,Heating On,Switch,Sensor\n" )
-		f.write(f"{xsl},{t},{ho},{cf.Switch},{cf.Sensor}\n" )
+		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor\n" )
+		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t},{ho}\n" )
