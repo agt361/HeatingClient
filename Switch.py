@@ -31,14 +31,9 @@ def GetHTML(url,hdr,val):
 	return 1, response.text
 
 def SetHeating(nf):
-	if nf: ss = '1' 
-	else: ss = '0'
+	ss = '1' if nf else '0'
 	web_status, html = GetHTML(cf.PicoClientURL,'Test',ss)
-	if web_status == 1 and ss == html[:1]:
-		cf.Switch = "OK"
-	else:
-		cf.Switch = "Problem"
-
+	cf.Switch = "OK" if web_status == 1 and ss == html[:1] else "Problem"
 
 def TruncateFile(LFile,NewL):
 	GhostFile = 'ghost.csv'
@@ -204,7 +199,6 @@ def Working(name):
 		ReadInPermanent(datetime.now() + timedelta(days = 1))
 		cf.WorkingDF.sort_values(by=['T0'], inplace=True)
 #		print(cf.WorkingDF)
-#		print(cf.TimeOnUntil)
 		EditTimeOnUntil()
 		if (datetime.now() < cf.TimeOnUntil and cf.TimeOnUntil > cf.OverrideOff) or \
 				datetime.now() < cf.OverrideOn:
