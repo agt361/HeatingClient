@@ -95,11 +95,12 @@ def ReadInPermanent(x):
 			
 def EditTimeOnUntil():
 	lag = (cf.HeatingUpTarget - cf.CurrentTemperature)/cf.ThermalDrag
+	cf.TimeOnUntil = datetime(2000,1,1,1,1)
 	for i in range(len(cf.WorkingDF)):
 		df = cf.WorkingDF.iloc[i]
 		if df['T0'] - timedelta(hours = lag) < datetime.now() and \
-		   df['T2'] > datetime.now():
-		   if df['T2'] > cf.TimeOnUntil: cf.TimeOnUntil = df['T2']
+		   df['T2'] > datetime.now() and df['T2'] > cf.TimeOnUntil:
+		   cf.TimeOnUntil = df['T2']
 	
 def Thermostat():
 	if cf.HeatingUp is True:
@@ -137,6 +138,7 @@ def ReadTemp():
 		cf.CurrentTemperature = t
 		cf.Sensor = 'OK'
 	else:
+		cf.CurrentTemperature = cf.HeatingDownTarget
 		cf.Sensor = "Problem"
 	x = datetime.now()
 	xsl = x.strftime("%y/%m/%d %H:%M:%S")
@@ -192,8 +194,8 @@ def Working(name):
 	while True:
 		ReadTemp()
 		ReadInStates()
-		if FS.CheckFlag() == True: 
-			cf.TimeOnUntil = datetime(2000,1,1,1,1)
+#		if FS.CheckFlag() == True: 
+#			cf.TimeOnUntil = datetime(2000,1,1,1,1)
 #			print("Yes")
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2'])
 		ReadInParameters()
