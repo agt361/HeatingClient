@@ -167,7 +167,7 @@ def ReadInParameters():
 	cf.PicoURL = df.loc[0,'PicoIP']
 	cf.PicoClientURL = df.loc[0,'PicoClientIP']
 
-def ReadInStates():
+def ReadInOverrides():
 	FileName = "States.csv"
 	f,t1,t2 = FS.CheckOFlag()
 	if f:
@@ -193,7 +193,7 @@ def Working(name):
 	cf.Errors = 0
 	while True:
 		ReadTemp()
-		ReadInStates()
+		ReadInOverrides()
 #		if FS.CheckFlag() == True: 
 #			cf.TimeOnUntil = datetime(2000,1,1,1,1)
 #			print("Yes")
