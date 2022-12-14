@@ -58,8 +58,9 @@ def ReadInTemporary():
 	for i in range(len(df)):
 		t0 = df.iloc[i]['DateTime']
 		t1 = df.iloc[i]['Duration']
+		ev = df.iloc[i]['Event']
 		t2 = t0 + timedelta(hours = t1.hour, minutes = t1.minute)
-		cf.WorkingDF.loc[i+j] = [t0,t2]
+		cf.WorkingDF.loc[i+j] = [t0,t2,ev]
     
 def BasicDate(x):
 	return datetime.combine(x, datetime.min.time())
@@ -79,6 +80,7 @@ def ReadInPermanent(x):
 		wom = df.iloc[i]['Weeks of Month']
 		t1 = df.iloc[i]['Time']
 		t11 = df.iloc[i]['Duration']
+		ev = df.iloc[i]['Event']
 		try:
 			ignoredate = BasicDate(pd.to_datetime(df.iloc[i]['Ignore']))
 		except:
@@ -86,16 +88,19 @@ def ReadInPermanent(x):
 		if d == dow and wom[w] == 'Y' and thisdate != ignoredate:
 			t0 = thisdate + timedelta(hours = t1.hour, minutes = t1.minute)
 			t2 = t0 + timedelta(hours = t11.hour, minutes = t11.minute)
-			cf.WorkingDF.loc[i+j] = [t0,t2]
+			cf.WorkingDF.loc[i+j] = [t0,t2,ev]
 			
 def EditTimeOnUntil():
-	lag = (cf.HeatingUpTarget - cf.CurrentTemperature)/cf.ThermalDrag
+	lag = max((cf.HeatingUpTarget - cf.CurrentTemperature)/cf.ThermalDrag,0)
 	cf.TimeOnUntil = datetime(2000,1,1,1,1)
+	cf.Event = ' '
 	for i in range(len(cf.WorkingDF)):
 		df = cf.WorkingDF.iloc[i]
+#		print(df['T0'],df['T2'],cf.TimeOnUntil,datetime.now())
 		if df['T0'] - timedelta(hours = lag) < datetime.now() and \
 		   df['T2'] > datetime.now() and df['T2'] > cf.TimeOnUntil:
-		   cf.TimeOnUntil = df['T2']
+			cf.TimeOnUntil = df['T2']
+			cf.Event = df['Event']
 	
 def Thermostat():
 	if cf.HeatingUp is True:
@@ -127,7 +132,6 @@ def ReadTemp():
 		cf.Errors += 1
 		if cf.Errors > 9:
 			cf.Errors = 0
-#			SwitchPicoOffAndOn()
 	t = float((re.findall(':.*:|$', html)[0]).strip(":"))
 	if t > -20: 
 		cf.CurrentTemperature = t
@@ -143,8 +147,8 @@ def ReadTemp():
 	else: hu = 'No'
 	cf.Counter += 1
 	with open("CurrentTemperature.csv", 'w') as f:
-		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor\n" )
-		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor}\n" )
+		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor,Event\n" )
+		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{cf.Event}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t},{ho}\n" )
@@ -189,10 +193,7 @@ def Working(name):
 	while True:
 		ReadTemp()
 		ReadInOverrides()
-#		if FS.CheckFlag() == True: 
-#			cf.TimeOnUntil = datetime(2000,1,1,1,1)
-#			print("Yes")
-		cf.WorkingDF = pd.DataFrame(columns=['T0','T2'])
+		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
 		ReadInParameters()
 		ReadInTemporary()
 		ReadInPermanent(datetime.now())
@@ -200,6 +201,7 @@ def Working(name):
 		cf.WorkingDF.sort_values(by=['T0'], inplace=True)
 #		print(cf.WorkingDF)
 		EditTimeOnUntil()
+#		sleep(5)
 		if (datetime.now() < cf.TimeOnUntil and cf.TimeOnUntil > cf.OverrideOff) or \
 				datetime.now() < cf.OverrideOn:
 			cf.HeatingUp = True

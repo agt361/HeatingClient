@@ -8,6 +8,7 @@ PicoClientURL = 'http://1.1.1.1'
 PicoGPIO = 8
 PicoOff = True
 PicoOn = False
+Event = ' '
 
 TimeOnUntil = datetime(2000,1,1,1,1)
 HeatingGPIO = 22
@@ -27,5 +28,5 @@ OverrideOff = datetime(2000,1,1,1,1)
 Sensor = 'OK'
 Switch = 'OK'
 
-WorkingDF = pd.DataFrame(columns=['T0','T2'])
+WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
 
