@@ -14,4 +14,3 @@ input('Return to turn Pico off:')
 GPIO.output(cf.PicoGPIO, cf.PicoOff) 
 input('Return to turn Pico on:')
 GPIO.output(cf.PicoGPIO, cf.PicoOn) 
-

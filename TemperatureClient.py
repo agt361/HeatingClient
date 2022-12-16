@@ -41,4 +41,3 @@ def GetTemp():
         time.sleep(2)
         
 #GetTemp()
-    

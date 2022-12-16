@@ -29,4 +29,3 @@ Sensor = 'OK'
 Switch = 'OK'
 
 WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
-

@@ -43,6 +43,3 @@ while True:
 	main(i)
 	i += 1
 	sleep(1)
-
-
-
