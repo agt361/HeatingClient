@@ -130,8 +130,9 @@ def ReadTemp():
 	else:
 		html = "Error:-100:"
 		cf.Errors += 1
-		if cf.Errors > 9:
+		if cf.Errors > 5:
 			cf.Errors = 0
+			sleep(5)
 	t = float((re.findall(':.*:|$', html)[0]).strip(":"))
 	if t > -20: 
 		cf.CurrentTemperature = t
@@ -214,3 +215,4 @@ def Working(name):
 
 Working(sys.argv[1])
 
+#Test 
