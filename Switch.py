@@ -157,15 +157,15 @@ def ReadTemp():
 		TruncateFile("TemperatureLog.csv",13333)
 		cf.Counter = 0
 
-def ReadInParameters():
+def ReadInParameters(name):
 	FileName = "System.csv"
 	df = pd.read_csv(FileName)
 	cf.HeatingUpTarget = float(df.iloc[0]['Target Temperature'])
 	cf.HeatingDownTarget = float(df.loc[0]['Background Temperature'])
 	cf.Hysteresis = float(df.iloc[0]['Hysteresis'])
 	cf.ThermalDrag = float(df.iloc[0]['Thermal Lag'])
-	cf.PicoURL = df.loc[0,'PicoIP']
-	cf.PicoClientURL = df.loc[0,'PicoClientIP']
+	cf.PicoURL = cf.Flags[name]
+	cf.PicoClientURL = cf.Flags[name+'Client']
 
 def ReadInOverrides():
 	FileName = "States.csv"
@@ -188,14 +188,15 @@ def ReadInOverrides():
 def Working(name):
 	print("/home/pi/shared/"+name)
 	os.chdir("/home/pi/shared/"+name)
-	ReadInParameters()
+	ReadInParameters(name)
 	cf.Counter = 0
 	cf.Errors = 0
 	while True:
 		ReadTemp()
 		ReadInOverrides()
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
-		ReadInParameters()
+		ReadInParameters(name)
+		print(cf.PicoClientURL)
 		ReadInTemporary()
 		ReadInPermanent(datetime.now())
 		ReadInPermanent(datetime.now() + timedelta(days = 1))
@@ -213,6 +214,9 @@ def Working(name):
 		Thermostat()
 		sleep(5)
 
-Working(sys.argv[1])
+print(cf.PicoClientURL)
+Working('Chancel')
+
+#Working(sys.argv[1])
 
 #Test 
