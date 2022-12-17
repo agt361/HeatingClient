@@ -1,4 +1,10 @@
+#Pins for Switch -	Pico 33, 34 and 40
+#					Pi 2, 6 and 8
+#Pins for Sensor - 	Pico 3, 4 and 36
+#					Pi - 1, 7 and 9
 import RPi.GPIO as GPIO
+import adafruit_dht
+import board
 from datetime import date, datetime, timedelta
 import os
 import shutil
@@ -16,8 +22,22 @@ import requests
 import re
 
 import config as cf
-#import TemperatureClient as TC
 import FileSearch as FS
+
+GPIO.setwarnings(False)
+#GPIO.setmode(GPIO.BOARD)
+GPIO.setup(cf.HeatingGPIO, GPIO.OUT)
+GPIO.setwarnings(False)
+dht_device = adafruit_dht.DHT22(4)
+
+#while True:
+#	temperature = dht_device.temperature
+#
+#	if temperature is not None:
+#		print("Temp={0:0.1f}*C ".format(temperature))
+#	else:
+#		print("Failed to retrieve data from humidity sensor")
+#	sleep(5)
 
 def GetHTML(url,hdr,val):
 	headers = {
@@ -30,10 +50,13 @@ def GetHTML(url,hdr,val):
 		return -1, "Error"
 	return 1, response.text
 
-def SetHeating(nf):
+def SetHeating(nf,name):
 	ss = '1' if nf else '0'
-	web_status, html = GetHTML(cf.PicoClientURL,'Test',ss)
-	cf.Switch = "OK" if web_status == 1 and ss == html[:1] else "Problem"
+	if (cf.Flags[name+'Switch']):
+		GPIO.output(cf.HeatingGPIO,nf)
+	else:
+		web_status, html = GetHTML(cf.PicoClientURL,'Test',ss)
+		cf.Switch = "OK" if web_status == 1 and ss == html[:1] else "Problem"
 
 def TruncateFile(LFile,NewL):
 	GhostFile = 'ghost.csv'
@@ -102,7 +125,7 @@ def EditTimeOnUntil():
 			cf.TimeOnUntil = df['T2']
 			cf.Event = df['Event']
 	
-def Thermostat():
+def Thermostat(name):
 	if cf.HeatingUp is True:
 		THigh = cf.HeatingUpTarget + cf.Hysteresis
 		TLow = cf.HeatingUpTarget - cf.Hysteresis
@@ -120,20 +143,29 @@ def Thermostat():
 		cf.HeatingTargetDirection = 'Up'
 		cf.HeatingOn = True
 		print(cf.HeatingOn)
-	SetHeating(cf.HeatingOn)
+	SetHeating(cf.HeatingOn,name)
 
 
-def ReadTemp():
-	web_status, html = GetHTML(cf.PicoURL,'x','x')
-	if web_status == 1:
-		cf.Errors = 0
+def ReadTemp(name):
+	if (cf.Flags[name+'Sensor']):
+		print("qwerty")
+		while True:
+			try: 
+				t = dht_device.temperature
+				if t != None: break
+			except:
+				pass
 	else:
-		html = "Error:-100:"
-		cf.Errors += 1
-		if cf.Errors > 5:
+		web_status, html = GetHTML(cf.PicoURL,'x','x')
+		if web_status == 1:
 			cf.Errors = 0
-			sleep(5)
-	t = float((re.findall(':.*:|$', html)[0]).strip(":"))
+		else:
+			html = "Error:-100:"
+			cf.Errors += 1
+			if cf.Errors > 5:
+				cf.Errors = 0
+				sleep(5)
+		t = float((re.findall(':.*:|$', html)[0]).strip(":"))
 	if t > -20: 
 		cf.CurrentTemperature = t
 		cf.Sensor = 'OK'
@@ -192,7 +224,7 @@ def Working(name):
 	cf.Counter = 0
 	cf.Errors = 0
 	while True:
-		ReadTemp()
+		ReadTemp(name)
 		ReadInOverrides()
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
 		ReadInParameters(name)
@@ -211,11 +243,12 @@ def Working(name):
 		print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"),cf.TimeOnUntil, cf.CurrentTemperature)
 		print(cf.HeatingUp,cf.HeatingTargetDirection, cf.HeatingOn)
 		print( cf.OverrideOn,cf.OverrideOff)
-		Thermostat()
+		Thermostat(name)
 		sleep(5)
 
 print(cf.PicoClientURL)
-Working('Chancel')
+Working('Nave')
+
 
 #Working(sys.argv[1])
 
