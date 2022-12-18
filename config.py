@@ -1,3 +1,7 @@
+#Pins for Switch -	Pico 33, 34 and 40
+#					Pi 2, 6 and 8
+#Pins for Sensor - 	Pico 3, 4 and 36
+#					Pi - 1, 7 and 9
 from datetime import date, datetime
 import pandas as pd
 import os
@@ -21,8 +25,6 @@ Flags = pd.Series( [NavePicoIP, NaveClientPicoIP, ChancelPicoIP, ChancelClientPi
                     NaveSwitchLocal, NaveSensorLocal,ChancelSwitchLocal, ChancelSensorLocal], \
             index=['Nave', 'NaveClient', 'Chancel', 'ChancelClient', \
                     'NaveSwitch','NaveSensor','ChancelSwitch','ChancelSensor'])
-print(Flags)
-
 Name = 'Chancel'
 
 PicoURL = 'http://1.1.1.1'

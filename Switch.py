@@ -1,7 +1,3 @@
-#Pins for Switch -	Pico 33, 34 and 40
-#					Pi 2, 6 and 8
-#Pins for Sensor - 	Pico 3, 4 and 36
-#					Pi - 1, 7 and 9
 import RPi.GPIO as GPIO
 import adafruit_dht
 import board
@@ -148,7 +144,6 @@ def Thermostat(name):
 
 def ReadTemp(name):
 	if (cf.Flags[name+'Sensor']):
-		print("qwerty")
 		while True:
 			try: 
 				t = dht_device.temperature
@@ -228,7 +223,7 @@ def Working(name):
 		ReadInOverrides()
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
 		ReadInParameters(name)
-		print(cf.PicoClientURL)
+#		print(cf.PicoClientURL)
 		ReadInTemporary()
 		ReadInPermanent(datetime.now())
 		ReadInPermanent(datetime.now() + timedelta(days = 1))
@@ -246,10 +241,9 @@ def Working(name):
 		Thermostat(name)
 		sleep(5)
 
-print(cf.PicoClientURL)
-Working('Nave')
+#print(cf.PicoClientURL)
+#Working('Nave')
 
-
-#Working(sys.argv[1])
+Working(sys.argv[1])
 
 #Test 
