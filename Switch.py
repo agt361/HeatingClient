@@ -186,9 +186,21 @@ def ReadTemp(name):
 	if cf.HeatingUp: hu = 'Yes'
 	else: hu = 'No'
 	cf.Counter += 1
+
+	ev = cf.Event
+	df = pd.read_csv("States.csv")
+
+	KOnT = datetime.strptime(df.loc[0,'KeepOnTill'],'%Y/%m/%d %H:%M:%S')
+	KOffT = datetime.strptime(df.loc[0,'KeepOffTill'],'%Y/%m/%d %H:%M:%S')
+
+	if KOnT > datetime.now():
+		ev = "Override On"
+	if KOffT > datetime.now():
+		ev = "Override Off"
+
 	with open("CurrentTemperature.csv", 'w') as f:
 		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor,Event\n" )
-		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{cf.Event}\n" )
+		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{ev}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t},{ho}\n" )
