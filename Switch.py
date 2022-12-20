@@ -39,10 +39,22 @@ def GetHTML(url,hdr,val):
 	headers = {
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; PIWEBMON)',
         hdr:val,'Cache-Control': 'no-cache' }
-	try: response = requests.get(url, headers=headers, timeout = 10)
-	except Exception as e: 
-		return -1, " Error"
+	try: 
+		response = requests.get(url, headers=headers, timeout = 10)
+	except requests.exceptions.HTTPError as errh:
+		print ("Http Error:",errh)
+		return -1, "Error"
+	except requests.exceptions.ConnectionError as errc:
+		print ("Error Connecting:",errc)
+		return -1, "Error"
+	except requests.exceptions.Timeout as errt:
+		print ("Timeout Error:",errt)
+		return -1, "Error"
+	except requests.exceptions.RequestException as err:
+		print ("OOps: Something Else",err)
+		return -1, "Error"
 	if (response.status_code < 200 or response.status_code > 299):
+		print("Status error")
 		return -1, "Error"
 	return 1, response.text
 
