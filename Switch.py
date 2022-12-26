@@ -156,12 +156,11 @@ def Thermostat(name):
 
 def ReadTemp(name):
 	if (cf.Flags[name+'Sensor']):
-		while True:
-			try: 
-				t = dht_device.temperature
-				if t != None: break
-			except:
-				pass
+		try: 
+			t = dht_device.temperature
+		except:
+			t = None
+		if t == None: t = -20
 	else:
 		web_status, html = GetHTML(cf.PicoURL,'x','x')
 		if web_status == 1:
