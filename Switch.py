@@ -24,7 +24,7 @@ GPIO.setwarnings(False)
 #GPIO.setmode(GPIO.BOARD)
 GPIO.setup(cf.HeatingGPIO, GPIO.OUT)
 GPIO.setwarnings(False)
-dht_device = adafruit_dht.DHT22(4)
+dht_device = adafruit_dht.DHT22(23)
 
 #while True:
 #	temperature = dht_device.temperature
@@ -153,15 +153,15 @@ def Thermostat(name):
 		print(cf.HeatingOn)
 	SetHeating(cf.HeatingOn,name)
 
-
 def ReadTemp(name):
 	if (cf.Flags[name+'Sensor']):
-		while True:
+		for i in range(10):
 			try: 
 				t = dht_device.temperature
-				if t != None: break
+				break
 			except:
-				pass
+				t = None
+		if t == None: t = -20
 	else:
 		web_status, html = GetHTML(cf.PicoURL,'x','x')
 		if web_status == 1:
@@ -177,7 +177,7 @@ def ReadTemp(name):
 		cf.CurrentTemperature = t
 		cf.Sensor = 'OK'
 	else:
-		cf.CurrentTemperature = cf.HeatingDownTarget
+#		cf.CurrentTemperature = cf.HeatingDownTarget
 		cf.Sensor = "Problem"
 	x = datetime.now()
 	xsl = x.strftime("%y/%m/%d %H:%M:%S")
@@ -186,12 +186,24 @@ def ReadTemp(name):
 	if cf.HeatingUp: hu = 'Yes'
 	else: hu = 'No'
 	cf.Counter += 1
+
+	ev = cf.Event
+	df = pd.read_csv("States.csv")
+
+	KOnT = datetime.strptime(df.loc[0,'KeepOnTill'],'%Y/%m/%d %H:%M:%S')
+	KOffT = datetime.strptime(df.loc[0,'KeepOffTill'],'%Y/%m/%d %H:%M:%S')
+
+	if KOnT > datetime.now():
+		ev = "Override On"
+	if KOffT > datetime.now():
+		ev = "Override Off"
+
 	with open("CurrentTemperature.csv", 'w') as f:
 		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor,Event\n" )
-		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{cf.Event}\n" )
+		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{ev}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
-			f.write(f"{xsl},{t},{ho}\n" )
+			f.write(f"{xsl},{t},{ho},{cf.Switch},{cf.Sensor}\n" )
 	if (cf.Counter % 3600) == 0:
 		TruncateFile("TemperatureLog.csv",13333)
 		cf.Counter = 0
