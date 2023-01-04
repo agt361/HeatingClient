@@ -35,7 +35,7 @@ PicoOn = False
 Event = ' '
 
 TimeOnUntil = datetime(2000,1,1,1,1)
-HeatingGPIO = 8
+HeatingGPIO = 14
 HeatingUp = True
 Hysteresis = 0.4
 HeatingUpTarget = 24
