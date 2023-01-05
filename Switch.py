@@ -153,6 +153,7 @@ def Thermostat(name):
 		print(cf.HeatingOn)
 	SetHeating(cf.HeatingOn,name)
 
+
 def ReadTemp(name):
 	if (cf.Flags[name+'Sensor']):
 		for i in range(10):
@@ -235,7 +236,16 @@ def ReadInOverrides():
 		df = pd.read_csv(FileName)
 		cf.OverrideOn = datetime.strptime(df.iloc[0]['KeepOnTill'],'%Y/%m/%d %H:%M:%S')
 		cf.OverrideOff = datetime.strptime(df.iloc[0]['KeepOffTill'],'%Y/%m/%d %H:%M:%S')
-	
+
+def ping():
+	try:
+		result = subprocess.run(["ping", "8.8.8.8", "-c1", "-W5", "-q"],
+                             capture_output=True, text=True)
+		output_string = result.stdout
+		i = output_string.find('received')
+		print(output_string,i)
+	except: pass
+
 def Working(name):
 	print("/home/pi/shared/"+name)
 	os.chdir("/home/pi/shared/"+name)
@@ -243,6 +253,7 @@ def Working(name):
 	cf.Counter = 0
 	cf.Errors = 0
 	while True:
+		ping()
 		ReadTemp(name)
 		ReadInOverrides()
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
@@ -260,14 +271,14 @@ def Working(name):
 			cf.HeatingUp = True
 		else: cf.HeatingUp = False
 		print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"),cf.TimeOnUntil, cf.CurrentTemperature)
-		print(cf.HeatingUp,cf.HeatingTargetDirection, cf.HeatingOn)
+		print(cf.HeatingUp,cf.HeatingTargetDirection, cf.HeatingOn, cf.Sensor)
 		print( cf.OverrideOn,cf.OverrideOff)
 		Thermostat(name)
-		sleep(5)
+		sleep(10)
 
 #print(cf.PicoClientURL)
-#Working('Nave')
+Working('Nave')
 
-Working(sys.argv[1])
+#Working(sys.argv[1])
 
 #Test 
