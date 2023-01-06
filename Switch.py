@@ -253,7 +253,7 @@ def Working(name):
 	cf.Counter = 0
 	cf.Errors = 0
 	while True:
-		ping()
+#		ping()
 		ReadTemp(name)
 		ReadInOverrides()
 		cf.WorkingDF = pd.DataFrame(columns=['T0','T2','Event'])
@@ -277,8 +277,8 @@ def Working(name):
 		sleep(10)
 
 #print(cf.PicoClientURL)
-Working('Nave')
+#Working('Nave')
 
-#Working(sys.argv[1])
+Working(sys.argv[1])
 
 #Test 
