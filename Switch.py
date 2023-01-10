@@ -204,7 +204,7 @@ def ReadTemp(name):
 		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{ev}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
-			f.write(f"{xsl},{t},{ho},{cf.Switch},{cf.Sensor}\n" )
+			f.write(f"{xsl},{t:.1f},{ho},{cf.Switch},{cf.Sensor}\n" )
 	if (cf.Counter % 3600) == 0:
 		TruncateFile("TemperatureLog.csv",13333)
 		cf.Counter = 0
