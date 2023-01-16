@@ -178,10 +178,11 @@ def ReadTemp(name):
 		cf.CurrentTemperature = t
 		cf.Sensor = 'OK'
 	else:
+		t = cf.CurrentTemperature
 #		cf.CurrentTemperature = cf.HeatingDownTarget
 		cf.Sensor = "Problem"
 	x = datetime.now()
-	xsl = x.strftime("%y/%m/%d %H:%M:%S")
+	xsl = x.strftime("%y/%m/%d   %H:%M:%S")
 	if cf.HeatingOn: ho = 'Yes'
 	else: ho = 'No'
 	if cf.HeatingUp: hu = 'Yes'
@@ -201,7 +202,7 @@ def ReadTemp(name):
 
 	with open("CurrentTemperature.csv", 'w') as f:
 		f.write(f"DateTime,Temperature,Heating On,Rads On,Switch,Sensor,Event\n" )
-		f.write(f"{xsl},{t},{hu},{ho},{cf.Switch},{cf.Sensor},{ev}\n" )
+		f.write(f"{xsl},{t:.1f},{hu},{ho},{cf.Switch},{cf.Sensor},{ev}\n" )
 	if (cf.Counter % 120) == 0:
 		with open("TemperatureLog.csv", 'a') as f:
 			f.write(f"{xsl},{t:.1f},{ho},{cf.Switch},{cf.Sensor}\n" )
